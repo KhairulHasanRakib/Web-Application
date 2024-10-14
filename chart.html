@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Speed Test</title>
+    <style>
+        body, h1, h2, h3, button, input {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input {
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        .results {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin: 10px auto;
+        }
+        pre {
+            background-color: #e8eef4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow: auto;
+            max-height: 150px;
+        }
+        #winnerOutput {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #28a745;
+            margin-top: 20px;
+        }
+        #chartContainer {
+            max-width: 800px;
+            margin: 30px auto;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Language Speed Test</h1>
+    <label for="countInput">Enter number of prints (1 - 10,000):</label>
+    <input type="number" id="countInput" placeholder="Enter a number" min="1" max="1000000">
+    <button id="startBtn">Start Test</button>
+    <button id="stopBtn">Stop Test</button>
+    <div class="results">
+        <h3>Results:</h3>
+        <pre id="output"></pre>
+    </div>
+    <div id="winnerOutput"></div>
+    <div id="chartContainer">
+        <canvas id="speedChart"></canvas>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const output = document.getElementById('output');
+        const winnerOutput = document.getElementById('winnerOutput');
+        const countInput = document.getElementById('countInput');
+        let intervals = {};
+        let times = {};
+        let running = false;
+        let targetCount = 0;
+        let completedTimes = {};
+
+        const ctx = document.getElementById('speedChart').getContext('2d');
+        const speedChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Python', 'C++', 'C#', 'Java', 'JavaScript', 'Ruby'], // Labels are now in uppercase
+                datasets: [{
+                    label: 'Execution Time (seconds)',
+                    backgroundColor: ['#4a90e2', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#3498db'], // Colors are now in the same order as the labels
+                    data: Array(6).fill(0) // Now initialized with 6 data points
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Time (seconds)'
+                        }
+                    }
+                }
+            }
+        });
+
+        startBtn.onclick = () => {
+            reset();
+            const inputNumber = parseInt(countInput.value, 10);
+            if (isNaN(inputNumber) || inputNumber < 1 || inputNumber > 1000000) {
+                alert("Please enter a number between 1 and 1,000,000.");
+                return;
+            }
+            targetCount = inputNumber;
+            running = true;
+
+            startTests();
+        };
+
+        function startTests() {
+            // Order of languages in this array MUST match the Chart.js labels array
+            ['python', 'cpp', 'csharp', 'java', 'javascript', 'ruby'].forEach((lang, index) => { // Use index for order 
+                times[lang] = Date.now();
+                completedTimes[lang] = 0; 
+                intervals[lang] = setInterval(() => {
+                    if (running) {
+                        updateOutput(lang, index); // Pass the index
+                    }
+                }, 10);
+            });
+        }
+
+        function updateOutput(lang, index) { // Receive the index 
+            const completedCount = completedTimes[lang] + 1;
+            completedTimes[lang] = completedCount;
+
+            if (completedCount <= targetCount) {
+                output.textContent = `${lang.toUpperCase()}: Printed ${completedCount} numbers`;
+            } else {
+                clearInterval(intervals[lang]);
+                const time = ((Date.now() - times[lang]) / 1000).toFixed(2);
+                output.textContent += `\n${lang.toUpperCase()}: Completed printing ${targetCount} numbers in ${time} seconds.`;
+                updateChart(lang, time, index); // Pass the index
+            }
+        }
+
+        function updateChart(lang, time, index) { // Receive the index 
+            speedChart.data.datasets[0].data[index] = parseFloat(time);
+            speedChart.update();
+            determineWinner(); 
+        }
+
+        function determineWinner() {
+            const times = speedChart.data.datasets[0].data;
+            const minTime = Math.min(...times.filter(time => time > 0));
+            const winningIndex = times.indexOf(minTime);
+
+            if (winningIndex !== -1) {
+                winnerOutput.textContent = `Winner: ${speedChart.data.labels[winningIndex]} with ${minTime} seconds.`;
+            }
+        }
+
+        function reset() {
+            running = false;
+            Object.values(intervals).forEach(clearInterval);
+            intervals = {};
+            output.textContent = '';
+            winnerOutput.textContent = '';
+            speedChart.data.datasets[0].data.fill(0);
+            speedChart.update();
+            completedTimes = {}; 
+        }
+
+        stopBtn.onclick = () => {
+            running = false;
+            Object.values(intervals).forEach(clearInterval);
+        };
+    </script>
+</body>
+</html>

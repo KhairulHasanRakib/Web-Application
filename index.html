@@ -1,11 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Language Speed Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        h3 {
+            margin-bottom: 5px;
+        }
+    </style>
+    <style>
+        /* Resetting default styles for consistency */
+        body,
+        h1,
+        h2,
+        h3,
+        button,
+        input {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        input {
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .results {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .results h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #4a90e2;
+        }
+
+        pre {
+            background-color: #e8eef4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow: auto;
+            max-height: 150px;
+        }
+
+        #winnerOutput {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #28a745;
+            margin-top: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .results {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            input,
+            button {
+                font-size: 0.9rem;
+            }
+
+            pre {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+
 </head>
+
 <body>
-    
+    <h1>Language Speed Test</h1>
+    <label for="countInput">Enter number of prints (1 - 1,000,000):</label>
+    <input type="number" id="countInput" placeholder="Enter a number" min="1" max="1000000">
+    <button id="startBtn">Start Test</button>
+    <button id="stopBtn">Stop Test</button>
+    <h2>Results</h2>
+    <div>
+        <h3>Python Output:</h3>
+        <pre id="pythonOutput"></pre>
+    </div>
+    <div>
+        <h3>C++ Output:</h3>
+        <pre id="cppOutput"></pre>
+    </div>
+    <div>
+        <h3>C# Output:</h3>
+        <pre id="csharpOutput"></pre>
+    </div>
+    <div>
+        <h3>Java Output:</h3>
+        <pre id="javaOutput"></pre>
+    </div>
+    <div>
+        <h3>JavaScript Output:</h3>
+        <pre id="javascriptOutput"></pre>
+    </div>
+    <div>
+        <h3>Ruby Output:</h3>
+        <pre id="rubyOutput"></pre>
+    </div>
+
+    <h2>Winner:</h2>
+    <div id="winnerOutput" style="font-weight: bold; color: green;"></div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const pythonOutput = document.getElementById('pythonOutput');
+        const cppOutput = document.getElementById('cppOutput');
+        const csharpOutput = document.getElementById('csharpOutput');
+        const javaOutput = document.getElementById('javaOutput');
+        const javascriptOutput = document.getElementById('javascriptOutput');
+        const rubyOutput = document.getElementById('rubyOutput');
+        const winnerOutput = document.getElementById('winnerOutput');
+        const countInput = document.getElementById('countInput');
+
+        let pythonCount = 0, cppCount = 0, csharpCount = 0, javaCount = 0, javascriptCount = 0, rubyCount = 0;
+        let pythonTime = 0, cppTime = 0, csharpTime = 0, javaTime = 0, javascriptTime = 0, rubyTime = 0;
+        let running = false;
+        let targetCount = 0;
+
+        // Function to start the tests
+        startBtn.onclick = function () {
+            running = true;
+            pythonCount = 0;
+            cppCount = 0;
+            csharpCount = 0;
+            javaCount = 0;
+            javascriptCount = 0;
+            rubyCount = 0;
+            pythonTime = 0;
+            cppTime = 0;
+            csharpTime = 0;
+            javaTime = 0;
+            javascriptTime = 0;
+            rubyTime = 0;
+            pythonOutput.textContent = '';
+            cppOutput.textContent = '';
+            csharpOutput.textContent = '';
+            javaOutput.textContent = '';
+            javascriptOutput.textContent = '';
+            rubyOutput.textContent = '';
+            winnerOutput.textContent = ''; // Clear previous winner
+
+            // Validate input
+            const inputNumber = parseInt(countInput.value, 10);
+            if (isNaN(inputNumber) || inputNumber < 1 || inputNumber > 1000000) {
+                alert("Please enter a number between 1 and 1,000,000.");
+                return; // Stop execution if the input is invalid
+            }
+            targetCount = inputNumber; // Set target count based on validated input
+
+            // Start time
+            const startTime = Date.now();
+
+            // Simulate Python Test
+            const pythonInterval = setInterval(() => {
+                if (running && pythonCount < targetCount) {
+                    pythonCount++;
+                    pythonOutput.textContent = `Python: Printed ${pythonCount} numbers`;
+                } else if (pythonCount >= targetCount) {
+                    clearInterval(pythonInterval);
+                    pythonTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    pythonOutput.textContent += `\nPython: Completed printing ${targetCount} numbers. Time: ${pythonTime} seconds.`;
+                }
+            }, 10); // Update every 10 milliseconds
+
+            // Simulate C++ Test
+            const cppInterval = setInterval(() => {
+                if (running && cppCount < targetCount) {
+                    cppCount++;
+                    cppOutput.textContent = `C++: Printed ${cppCount} numbers`;
+                } else if (cppCount >= targetCount) {
+                    clearInterval(cppInterval);
+                    cppTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    cppOutput.textContent += `\nC++: Completed printing ${targetCount} numbers. Time: ${cppTime} seconds.`;
+                }
+            }, 10); // Update every 10 milliseconds
+
+            // Simulate C# Test
+            const csharpInterval = setInterval(() => {
+                if (running && csharpCount < targetCount) {
+                    csharpCount++;
+                    csharpOutput.textContent = `C#: Printed ${csharpCount} numbers`;
+                } else if (csharpCount >= targetCount) {
+                    clearInterval(csharpInterval);
+                    csharpTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    csharpOutput.textContent += `\nC#: Completed printing ${targetCount} numbers. Time: ${csharpTime} seconds.`;
+                }
+            }, 10); // Update every 10 milliseconds
+
+            // Simulate Java Test
+            const javaInterval = setInterval(() => {
+                if (running && javaCount < targetCount) {
+                    javaCount++;
+                    javaOutput.textContent = `Java: Printed ${javaCount} numbers`;
+                } else if (javaCount >= targetCount) {
+                    clearInterval(javaInterval);
+                    javaTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    javaOutput.textContent += `\nJava: Completed printing ${targetCount} numbers. Time: ${javaTime} seconds.`;
+                }
+            }, 10); // Update every 10 milliseconds
+
+            // Simulate JavaScript Test
+            const javascriptInterval = setInterval(() => {
+                if (running && javascriptCount < targetCount) {
+                    javascriptCount++;
+                    javascriptOutput.textContent = `JavaScript: Printed ${javascriptCount} numbers`;
+                } else if (javascriptCount >= targetCount) {
+                    clearInterval(javascriptInterval);
+                    javascriptTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    javascriptOutput.textContent += `\nJavaScript: Completed printing ${targetCount} numbers. Time: ${javascriptTime} seconds.`;
+                }
+            }, 10); // Update every 10 milliseconds
+
+            // Simulate Ruby Test
+            const rubyInterval = setInterval(() => {
+                if (running && rubyCount < targetCount) {
+                    rubyCount++;
+                    rubyOutput.textContent = `Ruby: Printed ${rubyCount} numbers`;
+                } else if (rubyCount >= targetCount) {
+                    clearInterval(rubyInterval);
+                    rubyTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    rubyOutput.textContent += `\nRuby: Completed printing ${targetCount} numbers. Time: ${rubyTime} seconds.`;
+                }
+            }, 10); // Update every 10 milliseconds
+        };
+
+        // Function to stop the tests
+        stopBtn.onclick = function () {
+            running = false;
+            pythonOutput.textContent += `\nPython: Stopped at ${pythonCount} numbers. Time: ${pythonTime} seconds.`;
+            cppOutput.textContent += `\nC++: Stopped at ${cppCount} numbers. Time: ${cppTime} seconds.`;
+            csharpOutput.textContent += `\nC#: Stopped at ${csharpCount} numbers. Time: ${csharpTime} seconds.`;
+            javaOutput.textContent += `\nJava: Stopped at ${javaCount} numbers. Time: ${javaTime} seconds.`;
+            javascriptOutput.textContent += `\nJavaScript: Stopped at ${javascriptCount} numbers. Time: ${javascriptTime} seconds.`;
+            rubyOutput.textContent += `\nRuby: Stopped at ${rubyCount} numbers. Time: ${rubyTime} seconds.`;
+
+            // Determine the winner based on count and time
+            let winner = 'No Winner';
+            const times = [
+                { name: 'Python', count: pythonCount, time: pythonTime },
+                { name: 'C++', count: cppCount, time: cppTime },
+                { name: 'C#', count: csharpCount, time: csharpTime },
+                { name: 'Java', count: javaCount, time: javaTime },
+                { name: 'JavaScript', count: javascriptCount, time: javascriptTime },
+                { name: 'Ruby', count: rubyCount, time: rubyTime }
+            ];
+
+            const top = times.reduce((prev, curr) => (curr.count > prev.count) ? curr : prev);
+
+            if (top.count > 0) {
+                winner = `Winner: ${top.name} with ${top.count} prints in ${top.time} seconds.`;
+            }
+
+            winnerOutput.textContent = winner;
+        };
+    </script>
 </body>
+
 </html>

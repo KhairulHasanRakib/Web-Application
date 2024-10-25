@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            margin-top: 20px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Generator</h1>
+        <label for="length">Password Length:</label>
+        <input type="number" id="length" min="1" max="128" value="12">
+        
+        <div>
+            <input type="checkbox" id="includeNumbers" checked>
+            <label for="includeNumbers">Include Numbers</label>
+        </div>
+        <div>
+            <input type="checkbox" id="includeLowercase" checked>
+            <label for="includeLowercase">Include Lowercase Letters</label>
+        </div>
+        <div>
+            <input type="checkbox" id="includeUppercase" checked>
+            <label for="includeUppercase">Include Uppercase Letters</label>
+        </div>
+        <div>
+            <input type="checkbox" id="includeSymbols" checked>
+            <label for="includeSymbols">Include Symbols</label>
+        </div>
+        
+        <button id="generate">Generate Password</button>
+        <h2 id="password"></h2>
+    </div>
+    <script>
+        document.getElementById('generate').addEventListener('click', function() {
+            const length = parseInt(document.getElementById('length').value);
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+
+            const numbers = '0123456789';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const symbols = '!@#$%^&*()_+[]{}|;:,.<>?';
+
+            let characterSet = '';
+            if (includeNumbers) characterSet += numbers;
+            if (includeLowercase) characterSet += lowercase;
+            if (includeUppercase) characterSet += uppercase;
+            if (includeSymbols) characterSet += symbols;
+
+            if (characterSet.length === 0) {
+                alert('Please select at least one character type.');
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characterSet.length);
+                password += characterSet[randomIndex];
+            }
+
+            document.getElementById('password').textContent = password;
+        });
+    </script>
+</body>
+</html>

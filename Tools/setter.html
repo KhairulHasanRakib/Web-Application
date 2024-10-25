@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Setter</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="password"], input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Setter</h1>
+        <input type="password" id="newPassword" placeholder="New Password">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+        <button id="setPassword">Set Password</button>
+        <h3 class="message" id="setMessage"></h3>
+        <input type="text" id="verifyPassword" placeholder="Verify Password" class="hidden">
+        <button id="verifyButton" class="hidden">Verify Password</button>
+    </div>
+
+    <script>
+        let currentPassword = '';
+
+        document.getElementById('setPassword').addEventListener('click', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageElement = document.getElementById('setMessage');
+
+            if (newPassword === confirmPassword) {
+                currentPassword = newPassword; // Set the new password
+                messageElement.textContent = 'Password set successfully! Now verify it.';
+                messageElement.classList.remove('error');
+                document.getElementById('verifyPassword').classList.remove('hidden');
+                document.getElementById('verifyButton').classList.remove('hidden');
+            } else {
+                messageElement.textContent = 'Passwords do not match!';
+                messageElement.classList.add('error');
+            }
+        });
+
+        document.getElementById('verifyButton').addEventListener('click', function() {
+            const verifyPassword = document.getElementById('verifyPassword').value;
+            const messageElement = document.getElementById('setMessage');
+
+            if (verifyPassword === currentPassword) {
+                messageElement.textContent = 'Congratulations! You entered the right password.';
+                messageElement.classList.remove('error');
+            } else {
+                messageElement.textContent = 'Incorrect password!';
+                messageElement.classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html>

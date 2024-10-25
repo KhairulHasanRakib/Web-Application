@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        input[type="text"], input[type="password"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Tool</h1>
+
+        <!-- Password Generator -->
+        <div id="generator">
+            <h2>Password Generator</h2>
+            <label for="length">Length:</label>
+            <input type="number" id="length" min="1" max="128" value="12">
+            <div>
+                <input type="checkbox" id="includeNumbers" checked>
+                <label for="includeNumbers">Include Numbers</label>
+            </div>
+            <div>
+                <input type="checkbox" id="includeLowercase" checked>
+                <label for="includeLowercase">Include Lowercase Letters</label>
+            </div>
+            <div>
+                <input type="checkbox" id="includeUppercase" checked>
+                <label for="includeUppercase">Include Uppercase Letters</label>
+            </div>
+            <div>
+                <input type="checkbox" id="includeSymbols" checked>
+                <label for="includeSymbols">Include Symbols</label>
+            </div>
+            <button id="generate">Generate Password</button>
+            <h3 id="generatedPassword"></h3>
+        </div>
+
+        <!-- Password Setting -->
+        <div id="setter" class="hidden">
+            <h2>Password Setter</h2>
+            <input type="password" id="newPassword" placeholder="New Password">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password">
+            <button id="setPassword">Set Password</button>
+            <h3 class="message" id="setMessage"></h3>
+        </div>
+
+        <!-- Password Cracker -->
+        <div id="cracker" class="hidden">
+            <h2>Password Cracker</h2>
+            <button id="crackPassword">Crack Password</button>
+            <h3 class="message" id="crackMessage"></h3>
+        </div>
+    </div>
+
+    <script>
+        let currentPassword = '';
+        let attempts = 0;
+
+        // Password Generator
+        document.getElementById('generate').addEventListener('click', function() {
+            const length = parseInt(document.getElementById('length').value);
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+
+            const numbers = '0123456789';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const symbols = '!@#$%^&*()_+[]{}|;:,.<>?';
+
+            let characterSet = '';
+            if (includeNumbers) characterSet += numbers;
+            if (includeLowercase) characterSet += lowercase;
+            if (includeUppercase) characterSet += uppercase;
+            if (includeSymbols) characterSet += symbols;
+
+            if (characterSet.length === 0) {
+                alert('Please select at least one character type.');
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characterSet.length);
+                password += characterSet[randomIndex];
+            }
+
+            currentPassword = password; // Store the generated password
+            document.getElementById('generatedPassword').textContent = password;
+            document.getElementById('setter').classList.remove('hidden');
+        });
+
+        // Password Setter
+        document.getElementById('setPassword').addEventListener('click', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageElement = document.getElementById('setMessage');
+
+            if (newPassword === confirmPassword) {
+                currentPassword = newPassword; // Set the new password
+                messageElement.textContent = 'Password set successfully!';
+                messageElement.classList.remove('error');
+                document.getElementById('cracker').classList.remove('hidden');
+            } else {
+                messageElement.textContent = 'Passwords do not match!';
+                messageElement.classList.add('error');
+            }
+        });
+
+        // Password Cracker
+        document.getElementById('crackPassword').addEventListener('click', function() {
+            const messageElement = document.getElementById('crackMessage');
+            messageElement.textContent = 'Cracking in progress...';
+            attempts = 0;
+
+            const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:,.<>?';
+            const maxAttempts = Math.pow(characters.length, 4); // Limit attempts for demo purposes
+
+            function attemptCrack(passwordAttempt) {
+                attempts++;
+                if (passwordAttempt === currentPassword) {
+                    messageElement.textContent = `Congratulations! Cracked the password: "${passwordAttempt}" in ${attempts} attempts.`;
+                    return true;
+                }
+                return false;
+            }
+
+            // Brute-force cracking simulation
+            (function bruteForce(attempt) {
+                if (attempt.length > 4) return; // Limit length for demo purposes
+                for (let char of characters) {
+                    const newAttempt = attempt + char;
+                    if (attemptCrack(newAttempt)) return;
+                    if (attempts >= maxAttempts) {
+                        messageElement.textContent = 'Failed to crack the password within the limit.';
+                        return;
+                    }
+                    bruteForce(newAttempt);
+                }
+            })('');
+        });
+    </script>
+</body>
+</html>

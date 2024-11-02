@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Cracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+        .attempt {
+            font-family: monospace;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Cracker</h1>
+        <button id="crackPassword">Start Cracking</button>
+        <button id="stopCracking" style="background-color: #dc3545;">Stop Cracking</button>
+        <h3 class="message" id="crackMessage"></h3>
+        <div id="attempts" class="attempt"></div>
+    </div>
+
+    <script>
+        let attempts = 0;
+        let startTime;
+        let isCracking = false;
+
+        document.getElementById('crackPassword').addEventListener('click', function() {
+            attempts = 0;
+            startTime = Date.now();
+            isCracking = true;
+            document.getElementById('crackMessage').textContent = 'Cracking in progress...';
+            document.getElementById('attempts').innerHTML = ''; // Clear previous attempts
+
+            // Start the brute-force cracking process
+            bruteForce('', 0);
+        });
+
+        document.getElementById('stopCracking').addEventListener('click', function() {
+            isCracking = false; // Stop the cracking process
+            document.getElementById('crackMessage').textContent = 'Cracking stopped.';
+        });
+
+        function bruteForce(attempt, length) {
+            if (length > 20 || !isCracking) return; // Stop if length exceeds 20 or cracking is stopped
+            const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:,.<>?';
+            for (let char of characters) {
+                const newAttempt = attempt + char;
+                attempts++;
+                document.getElementById('attempts').innerHTML += `<div>${newAttempt}</div>`; // Show current attempt
+
+                // Check if the generated password matches the one in setter.html
+                if (window.verifyPassword(newAttempt)) {
+                    const endTime = Date.now();
+                    const timeTaken = ((endTime - startTime) / 1000).toFixed(2); // Time in seconds
+                    document.getElementById('crackMessage').textContent = `Congratulations! Cracked the password: "${newAttempt}" in ${attempts} attempts and ${timeTaken} seconds.`;
+                    isCracking = false; // Stop cracking
+                    return; // Stop the process
+                }
+
+                // Use setTimeout to allow the UI to update
+                setTimeout(() => {
+                    bruteForce(newAttempt, length + 1);
+                }, 1); // Adjust the delay as needed
+            }
+        }
+    </script>
+</body>
+</html>
